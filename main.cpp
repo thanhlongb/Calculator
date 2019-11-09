@@ -53,30 +53,31 @@ int main() {
 }
 
 void promptUserInput(std::string* userInput) {
-    //implement this
+    //no change
+    printf("Enter your equation: ");
+    getline(std::cin, *userInput);
 }
 bool userWantExit(std::string userInput) {
-    if (userInput.compare("Exit") == 0) { //should be working, review this later
+    //no change
+    if (userInput.compare("Exit") == 0) {
         return true;
     }
     return false;
 }
-
 std::string readNextWord(std::string str, int* currentIndex) {
+    //no change
 	int newIndex = 0;
 	std::string whitespace = " ";
 	std::string word = "";
 
 	newIndex = str.find(whitespace, *currentIndex);
-
 	word = str.substr(*currentIndex, newIndex - *currentIndex);
-
 	*currentIndex = newIndex + 1;
 
 	return word;
 }
-
 void parseUserInput(std::string userInput, int* arg1, char* op, int* arg2) {
+    //no change
 	int currentIndex = 0;
 
 	*arg1 = atoi(readNextWord(userInput, &currentIndex).c_str());
@@ -109,6 +110,10 @@ void operateCalculation(int arg1, char op, int arg2) {
             break;
         }
         case '/': {
+            if (isDividingByZero(arg2)) {
+                printErrorMessage(DIVISION_BY_ZERO);
+                return;
+            }
             result = divide(arg1, arg2);
             break;
         }
@@ -117,10 +122,6 @@ void operateCalculation(int arg1, char op, int arg2) {
             break;
         }
         case '%': {
-            if (isDividingByZero(arg2)) {
-                printErrorMessage(DIVISION_BY_ZERO);
-                return;
-            }
             result = remainder(arg1, arg2);
             break;
         }
@@ -162,7 +163,7 @@ void printExitMessage() {
                 "s3748575,s3748575@rmit.edu.vn,ThanhLong,Bui\n"
                 "s3742774,s3742774@rmit.edu.vn,QuangTrung,Ngo\n"
                 "s3757281,s3757281@rmit.edu.vn,MinhQuang,Tran\n";
-    printf(exitMessage);
+    printf("%s", exitMessage);
 }
 bool isValidArgs(std::string userInput) {
     //implement this
@@ -174,18 +175,23 @@ bool isValidFormat(std::string userInput) {
     //implement this
 }
 int add(int arg1, int arg2) {
+    //no change
 	return arg1 + arg2;
 }
 int subtract(int arg1, int arg2) {
+    //no change
 	return arg1 - arg2;
 }
 int multiply(int arg1, int arg2) {
+    //no change
 	return arg1 * arg2;
 }
 int divide(int arg1, int arg2) {
+    //no change
 	return arg1 / arg2;
 }
 int remainder(int arg1, int arg2) {
+    //no change
 	return arg1 % arg2;
 }
 void printResult(int result) {
