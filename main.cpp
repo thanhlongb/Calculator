@@ -12,6 +12,7 @@ typedef enum {
 
 void promptUserInput(std::string* userInput);
 bool userWantExit(std::string userInput);
+std::string readNextWord(std::string str, int* currentIndex);
 void parseUserInput(std::string userInput, int* arg1, char* op, int* arg2);
 validation validate(std::string userInput);
 void operateCalculation(int arg1, char op, int arg2);
@@ -60,8 +61,27 @@ bool userWantExit(std::string userInput) {
     }
     return false;
 }
+
+std::string readNextWord(std::string str, int* currentIndex) {
+	int newIndex = 0;
+	std::string whitespace = " ";
+	std::string word = "";
+
+	newIndex = str.find(whitespace, *currentIndex);
+
+	word = str.substr(*currentIndex, newIndex - *currentIndex);
+
+	*currentIndex = newIndex + 1;
+
+	return word;
+}
+
 void parseUserInput(std::string userInput, int* arg1, char* op, int* arg2) {
-    //implement this
+	int currentIndex = 0;
+
+	*arg1 = atoi(readNextWord(userInput, &currentIndex).c_str());
+	*op = readNextWord(userInput, &currentIndex).c_str()[0];
+	*arg2 = atoi(readNextWord(userInput, &currentIndex).c_str());
 }
 validation validate(std::string userInput) {
     //change is acceptable
@@ -154,19 +174,19 @@ bool isValidFormat(std::string userInput) {
     //implement this
 }
 int add(int arg1, int arg2) {
-    //implement this
+	return arg1 + arg2;
 }
 int subtract(int arg1, int arg2) {
-    //implement this
+	return arg1 - arg2;
 }
 int multiply(int arg1, int arg2) {
-    //implement this
+	return arg1 * arg2;
 }
 int divide(int arg1, int arg2) {
-    //implement this
+	return arg1 / arg2;
 }
 int remainder(int arg1, int arg2) {
-    //implement this
+	return arg1 % arg2;
 }
 void printResult(int result) {
     //no change
