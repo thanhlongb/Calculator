@@ -1,5 +1,8 @@
 #include <iostream>
+#include <string>
 // #define MAX_CHARACTER_PER_LINE  50 // uncomment if you intended to use getline()
+
+using namespace std;
 
 typedef enum {
     PASS,
@@ -10,17 +13,20 @@ typedef enum {
     DIVISION_BY_ZERO,
 } validation;
 
-void promptUserInput(std::string* userInput);
-bool userWantExit(std::string userInput);
-std::string readNextWord(std::string str, int* currentIndex);
-void parseUserInput(std::string userInput, int* arg1, char* op, int* arg2);
-validation validate(std::string userInput);
+void promptUserInput(string* userInput);
+bool userWantExit(string userInput);
+string readNextWord(string str, int* currentIndex);
+void ArgumentsToString(string userInput, string* arg1_str, string* op_str, string* arg2_str);
+void parseUserInput(int* arg1, char* op, int* arg2, string arg1_str, string op_str, string arg2_str);
+bool isValidDecimalPoints(string decimalPoints);
+validation validate(string userInput, string arg1_str, string op_str, string arg2_str);
 void operateCalculation(int arg1, char op, int arg2);
 void printErrorMessage(validation val);
 void printExitMessage();
-bool isValidArgs(std::string userInput);
-bool isValidOperator(std::string userInput);
-bool isValidFormat(std::string userInput);
+bool isValidArgs(string userInput);
+bool isValidOperator(string op_str);
+bool isValidInt(string number);
+bool isInRange(int arg1, int arg2);
 int add(int arg1, int arg2);
 int subtract(int arg1, int arg2);
 int multiply(int arg1, int arg2);
@@ -30,9 +36,11 @@ void printResult(int result);
 bool isDividingByZero(int arg);
 
 int main() {
-    std::string userInput;
+    string userInput;
+    string arg1_str, arg2_str, op_str;
     char op;
     int arg1, arg2;
+
     validation validationResult;
 
     while (true) {
@@ -40,66 +48,72 @@ int main() {
         if (userWantExit(userInput)) {
             break;
         }
-        validationResult = validate(userInput);
+        ArgumentsToString(userInput, &arg1_str, &op_str, &arg2_str);
+        validationResult = validate(userInput, arg1_str, op_str ,arg2_str);
         if (validationResult != PASS) {
             printErrorMessage(validationResult);
             continue;
         }
-        parseUserInput(userInput, &arg1, &op, &arg2);
+        parseUserInput(&arg1, &op, &arg2, arg1_str, op_str, arg2_str);
         operateCalculation(arg1, op, arg2);
     };
     printExitMessage();
     return 0;
 }
 
-void promptUserInput(std::string* userInput) {
+void promptUserInput(string* userInput) {
     //no change
     printf("Enter your equation: ");
-    getline(std::cin, *userInput);
+    getline(cin, *userInput);
 }
-bool userWantExit(std::string userInput) {
+bool userWantExit(string userInput) {
     //no change
-    if (userInput.compare("Exit") == 0) {
-        return true;
-    }
-    return false;
+    return userInput == "Exit";
 }
-std::string readNextWord(std::string str, int* currentIndex) {
+string readNextWord(string str, int* currentIndex) {
     //no change
-	int newIndex = 0;
-	std::string whitespace = " ";
-	std::string word = "";
+    int newIndex = 0;
+    string whitespace = " ";
+    string word = "";
 
-	newIndex = str.find(whitespace, *currentIndex);
-	word = str.substr(*currentIndex, newIndex - *currentIndex);
-	*currentIndex = newIndex + 1;
+    newIndex = str.find(whitespace, *currentIndex);
+    word = str.substr(*currentIndex, newIndex - *currentIndex);
+    *currentIndex = newIndex + 1;
 
-	return word;
+    return word;
 }
-void parseUserInput(std::string userInput, int* arg1, char* op, int* arg2) {
+
+void ArgumentsToString(string userInput, string* arg1_str, string* op_str, string* arg2_str) {
+    int currentIndex = 0;
+    *arg1_str = readNextWord(userInput, &currentIndex);
+    *op_str = readNextWord(userInput, &currentIndex);
+    *arg2_str = readNextWord(userInput, &currentIndex);
+}
+
+void parseUserInput(int* arg1, char* op, int* arg2, string arg1_str, string op_str, string arg2_str) {
     //no change
-	int currentIndex = 0;
-
-	*arg1 = atoi(readNextWord(userInput, &currentIndex).c_str());
-	*op = readNextWord(userInput, &currentIndex).c_str()[0];
-	*arg2 = atoi(readNextWord(userInput, &currentIndex).c_str());
+    *arg1 = stoi(arg1_str);
+    strcpy(op, op_str.c_str());
+    *arg2 = stoi(arg2_str);
 }
-validation validate(std::string userInput) {
+
+validation validate(string userInput, string arg1_str, string op_str, string arg2_str) {
     //change is acceptable
     if (!isValidArgs(userInput)) {
         return INVALID_ARGS;
     }
-    if (!isValidOperator(userInput)) {
+    if (!isValidOperator(op_str)) {
         return INVALID_OP;
     }
-    if (!isValidFormat(userInput)) {
+    if (!isValidInt(arg1_str) || !isValidInt(arg2_str)) {
         return INVALID_FORMAT;
     }
     return PASS;
 }
+
 void operateCalculation(int arg1, char op, int arg2) {
     //change is acceptable
-    int result;
+    int result = 0;
     switch (op) {
         case '+': {
             result = add(arg1, arg2);
@@ -128,6 +142,7 @@ void operateCalculation(int arg1, char op, int arg2) {
     }
     printResult(result);
 }
+
 void printErrorMessage(validation val) {
     //add more cases as you wish
     switch (val) {
@@ -148,7 +163,7 @@ void printErrorMessage(validation val) {
             break;
         }
         case INVALID_FORMAT: {
-            printf("You entered the wrong format for the equation!\n");
+            printf("You entered the wrong format for the integer operands!\n");
             break;
         }
         default: {
@@ -156,43 +171,87 @@ void printErrorMessage(validation val) {
         }
     }
 }
+
 void printExitMessage() {
     //no change
     const char* exitMessage =
-                "LABORATORY GROUP 1\n"
-                "s3748575,s3748575@rmit.edu.vn,ThanhLong,Bui\n"
-                "s3742774,s3742774@rmit.edu.vn,QuangTrung,Ngo\n"
-                "s3757281,s3757281@rmit.edu.vn,MinhQuang,Tran\n";
+            "LABORATORY GROUP 1\n"
+            "s3748575,s3748575@rmit.edu.vn,ThanhLong,Bui\n"
+            "s3742774,s3742774@rmit.edu.vn,QuangTrung,Ngo\n"
+            "s3757281,s3757281@rmit.edu.vn,MinhQuang,Tran\n";
     printf("%s", exitMessage);
 }
-bool isValidArgs(std::string userInput) {
+
+bool isValidArgs(string userInput) {
     //implement this
+    string delimiter = " ";
+    size_t pos = 0;
+    int no_WhitespaceChar = 0, no_Args = 0;
+
+    while ((pos = userInput.find(delimiter)) != string::npos) {
+        userInput.erase(0, pos + delimiter.length());
+        no_WhitespaceChar++;
+        no_Args++;
+    }
+    no_Args++;
+
+    return no_WhitespaceChar == 2 && no_Args == 3;
 }
-bool isValidOperator(std::string userInput) {
+
+bool isValidOperator(string op_str) {
     //implement this
+    if (op_str.size() > 1) return false;
+    else {
+        if (op_str[0] == '+' || op_str[0] == '-' || op_str[0] == '*' || op_str[0] == '/' || op_str[0] == '%')
+            return true;
+    }
+    return false;
 }
-bool isValidFormat(std::string userInput) {
+
+bool isValidDecimalPoints(string decimalPoints) {
+    for (int i = 0; i < decimalPoints.size(); i++)
+    {
+        if (decimalPoints[i] != '0') return false;
+    }
+
+    return true;
+}
+
+bool isValidInt(string number) {
     //implement this
+    if (!isdigit(number[0])) {
+        if (number[0] != '+' && number[0] != '-') return false;
+    }
+
+    for (int i = 1; i < number.size(); i++)
+    {
+        if (isdigit(number[i])) continue;
+        else {
+            if (number[i] == '.') return isValidDecimalPoints(number.erase(0, i + 1));
+            else return false;
+        }
+    }
+    return true;
 }
 int add(int arg1, int arg2) {
     //no change
-	return arg1 + arg2;
+    return arg1 + arg2;
 }
 int subtract(int arg1, int arg2) {
     //no change
-	return arg1 - arg2;
+    return arg1 - arg2;
 }
 int multiply(int arg1, int arg2) {
     //no change
-	return arg1 * arg2;
+    return arg1 * arg2;
 }
 int divide(int arg1, int arg2) {
     //no change
-	return arg1 / arg2;
+    return arg1 / arg2;
 }
 int remainder(int arg1, int arg2) {
     //no change
-	return arg1 % arg2;
+    return arg1 % arg2;
 }
 void printResult(int result) {
     //no change
@@ -200,8 +259,6 @@ void printResult(int result) {
 }
 bool isDividingByZero(int arg) {
     //change is acceptable
-    if (arg == 0) {
-        return true;
-    }
-    return false;
+    return arg == 0;
 }
+
