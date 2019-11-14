@@ -1,12 +1,10 @@
 #include <iostream>
-#include <string>
-// #define MAX_CHARACTER_PER_LINE  50 // uncomment if you intended to use getline()
 
 using namespace std;
 
 typedef enum {
     PASS,
-    INVALID_FORMAT,
+    INVALID_USER_INPUT,
     INVALID_ARGS,
     INVALID_OP,
     OUT_OF_RANGE,
@@ -16,7 +14,7 @@ typedef enum {
 void promptUserInput(string* userInput);
 bool userWantExit(string userInput);
 string readNextWord(string str, int* currentIndex);
-void ArgumentsToString(string userInput, string* arg1_str, string* op_str, string* arg2_str);
+void argumentsToString(string userInput, string* arg1_str, string* op_str, string* arg2_str);
 void parseUserInput(int* arg1, char* op, int* arg2, string arg1_str, string op_str, string arg2_str);
 bool isValidDecimalPoints(string decimalPoints);
 validation validate(string userInput, string arg1_str, string op_str, string arg2_str);
@@ -26,7 +24,7 @@ void printExitMessage();
 bool isValidArgs(string userInput);
 bool isValidOperator(string op_str);
 bool isValidInt(string number);
-bool isInRange(int arg1, int arg2);
+bool isInRange(string arg);
 int add(int arg1, int arg2);
 int subtract(int arg1, int arg2);
 int multiply(int arg1, int arg2);
@@ -40,7 +38,6 @@ int main() {
     string arg1_str, arg2_str, op_str;
     char op;
     int arg1, arg2;
-
     validation validationResult;
 
     while (true) {
@@ -48,7 +45,7 @@ int main() {
         if (userWantExit(userInput)) {
             break;
         }
-        ArgumentsToString(userInput, &arg1_str, &op_str, &arg2_str);
+        argumentsToString(userInput, &arg1_str, &op_str, &arg2_str);
         validationResult = validate(userInput, arg1_str, op_str ,arg2_str);
         if (validationResult != PASS) {
             printErrorMessage(validationResult);
@@ -83,7 +80,7 @@ string readNextWord(string str, int* currentIndex) {
     return word;
 }
 
-void ArgumentsToString(string userInput, string* arg1_str, string* op_str, string* arg2_str) {
+void argumentsToString(string userInput, string* arg1_str, string* op_str, string* arg2_str) {
     int currentIndex = 0;
     *arg1_str = readNextWord(userInput, &currentIndex);
     *op_str = readNextWord(userInput, &currentIndex);
@@ -93,7 +90,7 @@ void ArgumentsToString(string userInput, string* arg1_str, string* op_str, strin
 void parseUserInput(int* arg1, char* op, int* arg2, string arg1_str, string op_str, string arg2_str) {
     //no change
     *arg1 = stoi(arg1_str);
-    strcpy(op, op_str.c_str());
+    *op = op_str.c_str()[0];
     *arg2 = stoi(arg2_str);
 }
 
@@ -106,7 +103,10 @@ validation validate(string userInput, string arg1_str, string op_str, string arg
         return INVALID_OP;
     }
     if (!isValidInt(arg1_str) || !isValidInt(arg2_str)) {
-        return INVALID_FORMAT;
+        return INVALID_USER_INPUT;
+    }
+    if (!isInRange(arg1_str) || !isInRange(arg2_str)) {
+        return OUT_OF_RANGE;
     }
     return PASS;
 }
@@ -147,7 +147,8 @@ void printErrorMessage(validation val) {
     //add more cases as you wish
     switch (val) {
         case INVALID_ARGS: {
-            printf("You entered invalid args value!\n");
+            printf("%s.\n%s\n", "You entered an invalid expression",
+                   "The expression should looks like: <operand1> <operator> <operand2>");
             break;
         }
         case INVALID_OP: {
@@ -155,14 +156,14 @@ void printErrorMessage(validation val) {
             break;
         }
         case OUT_OF_RANGE: {
-            printf("Your number is out of range [-32,768 to 32,768]!\n");
+            printf("Your operand(s) is out of range [-32,768 to 32,767]!\n");
             break;
         }
         case DIVISION_BY_ZERO: {
-            printf("You can't divide by 0!\n");
+            printf("You can't divide a number by 0!\n");
             break;
         }
-        case INVALID_FORMAT: {
+        case INVALID_USER_INPUT: {
             printf("You entered the wrong format for the integer operands!\n");
             break;
         }
@@ -202,7 +203,11 @@ bool isValidOperator(string op_str) {
     //implement this
     if (op_str.size() > 1) return false;
     else {
-        if (op_str[0] == '+' || op_str[0] == '-' || op_str[0] == '*' || op_str[0] == '/' || op_str[0] == '%')
+        if (op_str[0] == '+' ||
+            op_str[0] == '-' ||
+            op_str[0] == '*' ||
+            op_str[0] == '/' ||
+            op_str[0] == '%')
             return true;
     }
     return false;
@@ -232,6 +237,21 @@ bool isValidInt(string number) {
         }
     }
     return true;
+}
+bool isInRange(string arg) {
+    int argInt;
+    try {
+        argInt = stoi(arg);
+    } catch (out_of_range e) {
+        //unable to convert to int due to
+        //the arg (as type string) being
+        //too big to store as int
+        return false;
+    }
+    if (argInt >= -32768 && argInt <= 32767) {
+        return true;
+    }
+    return false;
 }
 int add(int arg1, int arg2) {
     //no change
