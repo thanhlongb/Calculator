@@ -32,7 +32,10 @@ int divide(int arg1, int arg2);
 int remainder(int arg1, int arg2);
 void printResult(int result);
 bool isDividingByZero(int arg);
-string convertCharArrayToString(char* userinputchar);
+string convertCharArrayToString(char* userInputChar);
+void trim(string* str);
+void leftTrim(string* str);
+void rightTrim(string* str);
 
 int main() {
 	string userInput;
@@ -65,6 +68,7 @@ void promptUserInput(string* userInput) {
 	printf("Enter your equation: ");
 	cin.getline(userInputCharArr, MAX_USER_INPUT_LENGTH);
 	*userInput = convertCharArrayToString(userInputCharArr);
+	trim(userInput);
 }
 
 string convertCharArrayToString(char* userInputChar) {
@@ -126,60 +130,60 @@ validation validate(string userInput, string arg1Str, string opStr, string arg2S
 void operateCalculation(int arg1, char op, int arg2) {
 	int result = 0;
 	switch (op) {
-		case '+': {
-			result = add(arg1, arg2);
-			break;
+	case '+': {
+		result = add(arg1, arg2);
+		break;
+	}
+	case '-': {
+		result = subtract(arg1, arg2);
+		break;
+	}
+	case '/': {
+		if (isDividingByZero(arg2)) {
+			printErrorMessage(DIVISION_BY_ZERO);
+			return;
 		}
-		case '-': {
-			result = subtract(arg1, arg2);
-			break;
-		}
-		case '/': {
-			if (isDividingByZero(arg2)) {
-				printErrorMessage(DIVISION_BY_ZERO);
-				return;
-			}
-			result = divide(arg1, arg2);
-			break;
-		}
-		case '*': {
-			result = multiply(arg1, arg2);
-			break;
-		}
-		case '%': {
-			result = remainder(arg1, arg2);
-			break;
-		}
+		result = divide(arg1, arg2);
+		break;
+	}
+	case '*': {
+		result = multiply(arg1, arg2);
+		break;
+	}
+	case '%': {
+		result = remainder(arg1, arg2);
+		break;
+	}
 	}
 	printResult(result);
 }
 
 void printErrorMessage(validation val) {
 	switch (val) {
-		case INVALID_ARGS: {
-			printf("%s.\n%s\n", "You entered an invalid expression",
-				"The expression should looks like: <operand1> <operator> <operand2>");
-			break;
-		}
-		case INVALID_OP: {
-			printf("You entered invalid operator!\n");
-			break;
-		}
-		case OUT_OF_RANGE: {
-			printf("Your operand(s) is out of range [-32,768 to 32,767]!\n");
-			break;
-		}
-		case DIVISION_BY_ZERO: {
-			printf("You can't divide a number by 0!\n");
-			break;
-		}
-		case INVALID_USER_INPUT: {
-			printf("You entered the wrong format for the integer operands!\n");
-			break;
-		}
-		default: {
-			break;
-		}
+	case INVALID_ARGS: {
+		printf("%s.\n%s\n", "You entered an invalid expression",
+			"The expression should looks like: <operand1> <operator> <operand2>");
+		break;
+	}
+	case INVALID_OP: {
+		printf("You entered invalid operator!\n");
+		break;
+	}
+	case OUT_OF_RANGE: {
+		printf("Your operand(s) is out of range [-32,768 to 32,767]!\n");
+		break;
+	}
+	case DIVISION_BY_ZERO: {
+		printf("You can't divide a number by 0!\n");
+		break;
+	}
+	case INVALID_USER_INPUT: {
+		printf("You entered the wrong format for the integer operands!\n");
+		break;
+	}
+	default: {
+		break;
+	}
 	}
 }
 
@@ -290,5 +294,33 @@ bool isDividingByZero(int arg) {
 	return (arg == 0);
 }
 
+void trim(string* str) {
+	leftTrim(str);
+	rightTrim(str);
+}
 
+void leftTrim(string* str) {
+	int firstCharOccurrence = 0;
+	for (int i = 0; i < str->length(); i++) {
+		if (str->at(i) == ' ') {
+			firstCharOccurrence++;
+		}
+		else {
+			break;
+		}
+	}
+	str->erase(0, firstCharOccurrence);
+}
 
+void rightTrim(string* str) {
+	int lastCharOccurrence = str->length();
+	for (int i = str->length() - 1; i >= 0; i--) {
+		if (str->at(i) == ' ') {
+			lastCharOccurrence--;
+		}
+		else {
+			break;
+		}
+	}
+	str->erase(lastCharOccurrence, str->length() - lastCharOccurrence);
+}
