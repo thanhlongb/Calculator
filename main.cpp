@@ -118,15 +118,17 @@ void readNextArgument(char target[], char userInput[], int* currentIndex) {
     int newIndex = *currentIndex;
 
     //Find the next index of whitespace (nexIndex) from the current index
-    while ( *(userInput + newIndex) && *(userInput + newIndex) != ' ') newIndex++;
-
+    while (*(userInput + newIndex) && *(userInput + newIndex) != ' ') {
+        newIndex++;
+    }
     //Get the word from currentIndex to nextIndex
     int j = *currentIndex;
     int i = 0;
-    while ( j != newIndex )
+    while (j != newIndex)
     {
-        *(target +i) = userInput[j];
-        i++; j++;
+        *(target + i) = userInput[j];
+        i++;
+        j++;
     }
 
     *currentIndex = newIndex + 1;

@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/longb/CLionProjects/Calculator/Node.h
+
+/Users/longb/CLionProjects/Calculator/Queue.h
+Node.h
+/Users/longb/CLionProjects/Calculator/Node.h
+
+/Users/longb/CLionProjects/Calculator/Stack.h
+Node.h
+/Users/longb/CLionProjects/Calculator/Node.h
+
+/Users/longb/CLionProjects/Calculator/main.cpp
+iostream
+-
+Stack.h
+/Users/longb/CLionProjects/Calculator/Stack.h
+Queue.h
+/Users/longb/CLionProjects/Calculator/Queue.h
+
