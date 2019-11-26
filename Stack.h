@@ -11,7 +11,7 @@ public:
     bool isEmpty();
     char* peek();
     void push(char* data);
-    char* pop();
+    void pop();
     Stack();
 private:
     Node* top;
