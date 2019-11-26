@@ -17,7 +17,7 @@ char* Queue::peek() {
     return this->head->data;
 }
 
-void Queue::add(char *data) {
+void Queue::enqueue(char *data) {
     Node* node = new Node(data);
     if (this->tail != nullptr) {
         this->tail->next = node;
@@ -28,12 +28,11 @@ void Queue::add(char *data) {
     }
 }
 
-char* Queue::remove() {
-    // FIXME: should probably delete the `this->head->next` object before detaching it
-    char* data = this->head->data;
+void Queue::dequeue() {
+    Node* detachedNode = this->head;
     this->head = this->head->next;
     if (this->head == nullptr) {
         this->tail = nullptr;
     }
-    return data;
+    delete detachedNode;
 }
