@@ -23,8 +23,7 @@ void Stack::push(char *data) {
 }
 
 char* Stack::pop() {
-    // FIXME: should probably delete the `this->head->next` object before detaching it
-    char* data = this->top->data;
+    Node* detachedNode = this->top;
     this->top = this->top->next;
-    return data;
+    delete detachedNode;
 }
