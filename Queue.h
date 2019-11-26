@@ -10,8 +10,8 @@ class Queue {
 public:
     bool isEmpty();
     char* peek();
-    void add(char* data);
-    char* remove();
+    void enqueue(char* data);
+    void dequeue();
     Queue();
 private:
     Node *head;
