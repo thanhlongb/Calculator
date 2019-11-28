@@ -1,4 +1,6 @@
 #include <iostream>
+#include "Stack.h"
+#include "Queue.h"
 
 using namespace std;
 
@@ -45,30 +47,70 @@ void operateCalculation(int arg1, char op, int arg2);
 //----------Exit------------//
 void printExitMessage();
 
+//----------index these later-------------//
+int charArrayLength(char* charArr) {
+    int i = 0;
+    while (*(charArr + i) != '\0') i++;
+    return i;
+}
+void clearCharArray(char* charArr) {
+    for (int i = 0; i < sizeof(charArr); i++) {
+        charArr[i] = '\0';
+    }
+}
+int getPrecedenceValue(char op) {
+    switch (op) {
+        case '*': { return 3; }
+        case '/': { return 3; }
+        case '+': { return 2; }
+        case '-': { return 2; }
+        default: { return -1; }
+    }
+}
+bool isHigherOrEqualPrecedence(char tokenOperator, char stackOperator) {
+    return (getPrecedenceValue(stackOperator) >= getPrecedenceValue(tokenOperator));
+}
+void infixToPostfix(char userInput[], Queue* outputQueue) {
+    int currentIndex = 0;
+    char token[100] = "";
+    Stack* operatorStack = new Stack();
+
+    readNextArgument(token, userInput, &currentIndex);
+    while (charArrayLength(token) > 0) {
+        if (isValidInt(token)) {
+            outputQueue->enqueue(token);
+        } else if (isValidOpChar(token)) {
+            while (!operatorStack->isEmpty() && (
+                   isHigherOrEqualPrecedence(token[0], operatorStack->peek()[0])
+            )) {
+                outputQueue->enqueue(operatorStack->peek());
+                operatorStack->pop();
+            }
+            operatorStack->push(token);
+        }
+        readNextArgument(token, userInput, &currentIndex);
+    }
+    while (!operatorStack->isEmpty()) {
+        outputQueue->enqueue(operatorStack->peek());
+        operatorStack->pop();
+    }
+}
+
 int main() {
     while (true)
     {
+        Queue* outputQueue = new Queue();
         char userInput[MAX_USER_INPUT_LENGTH] = {};
-        char arg1CharArr[MAX_ARG_LENGTH] = {};
-        char opCharArr[MAX_ARG_LENGTH] = {};
-        char arg2CharArr[MAX_ARG_LENGTH] = {};
 
-        char op;
-        int arg1, arg2;
-        validation validationResult;
-
-        promptUserInput(userInput); //Taking input
-        if (userWantExit(userInput)) { //Exit?
+        promptUserInput(userInput);
+        if (userWantExit(userInput)) {
             break;
         }
-        argumentsToCharArr(userInput, arg1CharArr, opCharArr, arg2CharArr); //Convert input to each arguments
-        validationResult = validate(userInput, arg1CharArr, opCharArr, arg2CharArr);      // Validation
-        if (validationResult != PASS) {
-            printErrorMessage(validationResult);
-            continue;
+        infixToPostfix(userInput, outputQueue);
+        while (!outputQueue->isEmpty()) {
+            printf("%s\n", outputQueue->peek());
+            outputQueue->dequeue();
         }
-        parseUserInput(&arg1, &op, &arg2, arg1CharArr, opCharArr, arg2CharArr);
-        operateCalculation(arg1, op, arg2);
     }
     printExitMessage();
     return 0;
